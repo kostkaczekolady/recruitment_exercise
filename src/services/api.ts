@@ -2,12 +2,12 @@ import {User, UserRepo} from '../model/user';
 
 const gitHubUrl = 'https://api.github.com/users';
 
-export async function searchUser(name: String): Promise<User | null> {
+export async function searchUser(name: String): Promise<User> {
     const response = await fetch(`${gitHubUrl}/${name}`);
     if (response.status === 200) {
         return new User(await response.json());
     }
-    return null;
+    throw new Error("Nic nie znaleziono :( Spróbuj ponownie lub poszukaj innego repo ;)");
 }
 
 export async function searchUserRepo(name: String): Promise<UserRepo[]> {

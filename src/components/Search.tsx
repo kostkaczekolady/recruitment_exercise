@@ -4,7 +4,7 @@ import {User, UserRepo} from '../model/user'
 import {searchUser, getSortedUserRepo} from "../services/api";
 import githubLogo from '../assets/logo.png'
 
-type State = { user: User, userRepo: UserRepo[]; searchUserName: String, foundProfile: boolean };
+type State = { user: User, userRepo: UserRepo[]; searchUserName: String, foundProfile: boolean, error: string };
 
 class Search extends Component<{}, State> {
 
@@ -15,38 +15,36 @@ class Search extends Component<{}, State> {
             userRepo: [],
             searchUserName: "",
             foundProfile: false,
+            error: "",
         }
     }
 
     handleOnChange = (event: ChangeEvent<HTMLInputElement>): void => {
-        this.setState(
-            {
-                searchUserName: event.target.value
-            }
-        );
+        this.setState({searchUserName: event.target.value});
     };
 
-    searchUsers = () => {
-        if (this.state.searchUserName !== '') {
-            searchUser(this.state.searchUserName).then(user=>{
-                if (user === null) {
-                    this.setState({foundProfile: false});
-                } else {
-                    this.setState({user});
-                    getSortedUserRepo(this.state.searchUserName, 3).then(userRepo => {
-                        this.setState({userRepo});
-                        this.setState({foundProfile: true});
-                    })
-                }
-            });
-        }
+    searchUsers = (e: any) => {
+       if (typeof e.key === 'undefined' || e.key === 'Enter') {
+           if (this.state.searchUserName !== '') {
+               searchUser(this.state.searchUserName).then(user=>{
+                   if (user !== null) {
+                       this.setState({user, error: "" });
+                       getSortedUserRepo(this.state.searchUserName, 3).then(userRepo => {
+                           this.setState({userRepo, foundProfile: true});
+                       })
+                   }
+               }).catch(error => {
+                   this.setState({ error: error.message, foundProfile: false })
+               })
+           }
+       }
     };
 
 
     render() {
         const { foundProfile } = this.state;
         return (
-            <div className="layout">
+            <section className="layout">
                 <div className="container-search">
                     <div className="container-search-logo">
                         <img src={githubLogo} alt="logo"></img>
@@ -58,9 +56,15 @@ class Search extends Component<{}, State> {
                             placeholder="GitHub nick"
                             value={this.state.searchUserName.toString()}
                             onChange={this.handleOnChange}
+                            onKeyPress={this.searchUsers}
                         />
-                        <button onClick={this.searchUsers}>Search</button>
+                        <button
+                            onClick={this.searchUsers}
+                        >
+                            Search
+                        </button>
                     </div>
+                    <div className="container-error">{this.state.error}</div>
                     {
                         foundProfile &&
                         <UserProfile
@@ -69,7 +73,7 @@ class Search extends Component<{}, State> {
                         />
                     }
                 </div>
-            </div>
+            </section>
         )
     }
 }
