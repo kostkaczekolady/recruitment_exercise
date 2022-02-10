@@ -44,7 +44,7 @@
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-react": "^7.16.0",
     "jest": "^24.9.0",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "react-test-renderer": "^16.10.2",
     "ts-jest": "^24.1.0"
   }
